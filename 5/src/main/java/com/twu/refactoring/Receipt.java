@@ -13,27 +13,36 @@ public class Receipt {
 
     private final Taxi taxi;
 
-    public Receipt(Taxi taxi) {
-        this.taxi = taxi;
+  public Receipt(Taxi taxi) {
+    this.taxi = taxi;
     }
 
     public double getTotalCost() {
-        double totalCost = 0;
-
-        // fixed charges
-        totalCost += FIXED_CHARGE;
-
-        // taxi charges
-        int totalKms = taxi.getTotalKms();
-        double peakTimeMultiple = taxi.isPeakTime() ? PEAK_TIME_MULTIPLIER : OFF_PEAK_MULTIPLIER;
-        if(taxi.isAirConditioned()) {
-            totalCost += Math.min(RATE_CHANGE_DISTANCE, totalKms) * PRE_RATE_CHANGE_AC_RATE * peakTimeMultiple;
-            totalCost += Math.max(0, totalKms - RATE_CHANGE_DISTANCE) * POST_RATE_CHANGE_AC_RATE * peakTimeMultiple;
-        } else {
-            totalCost += Math.min(RATE_CHANGE_DISTANCE, totalKms) * PRE_RATE_CHANGE_NON_AC_RATE * peakTimeMultiple;
-            totalCost += Math.max(0, totalKms - RATE_CHANGE_DISTANCE) * POST_RATE_CHANGE_NON_AC_RATE * peakTimeMultiple;
-        }
-
-        return totalCost * (1 + SALES_TAX_RATE);
+      double totalCost = this.getBasicFare() + this.getDrivingCost();
+      return totalCost * (1 + SALES_TAX_RATE);
     }
+
+  private double getDrivingCost() {
+    return this.getRateCost() + this.getCostNotInRate();
+  }
+
+  private double getCostNotInRate() {
+    int totalKms = taxi.getTotalKms();
+    double peakTimeMultiple = taxi.isPeakTime() ? PEAK_TIME_MULTIPLIER : OFF_PEAK_MULTIPLIER;
+    double postRateChange = taxi.isAirConditioned() ? POST_RATE_CHANGE_AC_RATE : POST_RATE_CHANGE_NON_AC_RATE;
+
+    return Math.max(0, totalKms - RATE_CHANGE_DISTANCE) * postRateChange * peakTimeMultiple;
+  }
+
+  private double getRateCost() {
+    int totalKms = taxi.getTotalKms();
+    double peakTimeMultiple = taxi.isPeakTime() ? PEAK_TIME_MULTIPLIER : OFF_PEAK_MULTIPLIER;
+    double preRateChange = taxi.isAirConditioned() ? PRE_RATE_CHANGE_AC_RATE : PRE_RATE_CHANGE_NON_AC_RATE;
+
+    return Math.min(RATE_CHANGE_DISTANCE, totalKms) * preRateChange * peakTimeMultiple;
+  }
+
+  private double getBasicFare() {
+    return FIXED_CHARGE;
+  }
 }
