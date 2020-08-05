@@ -1,57 +1,56 @@
 package com.twu.refactoring;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
+/**
+ * @author gaarahan
+ */
 public class Direction {
-    private final char direction;
+    private char direction;
+    private final ArrayList<Character> directionsInClockwise = new ArrayList<>(Arrays.asList('N', 'E', 'S', 'W'));
 
     public Direction(char direction) {
         this.direction = direction;
     }
 
     public Direction turnRight() {
-        switch (direction) {
-            case 'N':
-                return new Direction('E');
-            case 'S':
-                return new Direction('W');
-            case 'E':
-                return new Direction('N');
-            case 'W':
-                return new Direction('S');
-            default:
-                throw new IllegalArgumentException();
-        }
+      if (directionsInClockwise.contains(direction)) {
+        int curIndex = directionsInClockwise.indexOf(direction);
+        int rightIndex = (curIndex + 1) % directionsInClockwise.size();
+        this.direction = directionsInClockwise.get(rightIndex);
+        return this;
+      }
+      throw new IllegalArgumentException();
     }
 
     public Direction turnLeft() {
-        switch (direction) {
-            case 'N':
-                return new Direction('W');
-            case 'S':
-                return new Direction('E');
-            case 'E':
-                return new Direction('N');
-            case 'W':
-                return new Direction('S');
-            default:
-                throw new IllegalArgumentException();
-        }
+      if (directionsInClockwise.contains(direction)) {
+        int curIndex = directionsInClockwise.indexOf(direction);
+        int leftIndex = (curIndex + directionsInClockwise.size() - 1) % directionsInClockwise.size();
+        this.direction = directionsInClockwise.get(leftIndex);
+        return this;
+      }
+      throw new IllegalArgumentException();
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+          return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+          return false;
+        }
 
         Direction direction1 = (Direction) o;
 
-        if (direction != direction1.direction) return false;
-
-        return true;
+      return direction == direction1.direction;
     }
 
     @Override
     public int hashCode() {
-        return (int) direction;
+        return direction;
     }
 
     @Override
